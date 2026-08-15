@@ -1,0 +1,160 @@
+/* ═══════════════════════════════════════════════════════════════
+   Google Fonts — must be FIRST before Tailwind import
+   ═══════════════════════════════════════════════════════════════ */
+@import url('https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap');
+
+@import "tailwindcss";
+
+/* ═══════════════════════════════════════════════════════════════
+   Annadata — Design System Tokens (Tailwind v4 @theme)
+   ═══════════════════════════════════════════════════════════════ */
+
+@theme {
+  /* Colors — Brand */
+  --color-coral: #E15959;
+  --color-teal: #3288A5;
+  --color-charcoal: #1A1A1A;
+  --color-body-text: #4A4A4A;
+  --color-section-bg: #F0F4F8;
+  --color-footer-bg: #1E1E1E;
+  --color-border-subtle: #E1E8F0;
+
+  /* Colors — Material-like surface tokens */
+  --color-surface: #fbf9f8;
+  --color-surface-dim: #dbd9d9;
+  --color-surface-bright: #fbf9f8;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f5f3f3;
+  --color-surface-container: #efeded;
+  --color-surface-container-high: #eae8e7;
+  --color-surface-container-highest: #e4e2e2;
+  --color-on-surface: #1b1c1c;
+  --color-on-surface-variant: #584140;
+  --color-inverse-surface: #303030;
+  --color-inverse-on-surface: #f2f0f0;
+  --color-outline: #8c716f;
+  --color-outline-variant: #dfbfbd;
+
+  --color-primary: #a82f33;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #ca4849;
+  --color-secondary: #006781;
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #90dfff;
+  --color-tertiary: #5d5c5b;
+  --color-on-tertiary: #ffffff;
+  --color-error: #ba1a1a;
+  --color-on-error: #ffffff;
+  --color-error-container: #ffdad6;
+
+  /* Fonts */
+  --font-heading: 'Work Sans', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --font-hindi: 'Noto Sans Devanagari', sans-serif;
+
+  /* Shadows */
+  --shadow-tech-soft: 0px 4px 20px rgba(26, 26, 26, 0.05);
+
+  /* Max Width */
+  --max-width-container: 1280px;
+
+  /* Spacing */
+  --spacing-gutter: 24px;
+  --spacing-margin-mobile: 16px;
+  --spacing-margin-desktop: 64px;
+  --spacing-section-gap: 120px;
+  --spacing-stack-sm: 8px;
+  --spacing-stack-md: 16px;
+  --spacing-stack-lg: 32px;
+
+  /* Background images */
+  --background-image-brand-gradient: linear-gradient(to right, #E15959, #3288A5);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Base Reset & Defaults
+   ═══════════════════════════════════════════════════════════════ */
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-body);
+  color: var(--color-body-text);
+  background-color: #ffffff;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  color: var(--color-charcoal);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Utility Classes
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Container */
+.max-w-container {
+  max-width: var(--max-width-container);
+}
+
+/* Brand gradient */
+.bg-brand-gradient {
+  background-image: var(--background-image-brand-gradient);
+}
+
+/* Section gap */
+.section-gap {
+  padding-top: var(--spacing-section-gap);
+  padding-bottom: var(--spacing-section-gap);
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-section-bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-subtle);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-teal);
+}
+
+/* Selection color */
+::selection {
+  background-color: rgba(225, 89, 89, 0.15);
+  color: var(--color-charcoal);
+}
+
+/* Focus visible for accessibility */
+:focus-visible {
+  outline: 2px solid var(--color-teal);
+  outline-offset: 2px;
+}
+
+/* Animation utilities */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.1) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
