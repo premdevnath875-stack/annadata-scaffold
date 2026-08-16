@@ -286,8 +286,8 @@ export default function DoseCalculatorPage() {
                       typesLoading
                         ? 'Loading...'
                         : availableTypes.length === 0
-                        ? 'No options for this crop'
-                        : t('calc.select_app')
+                          ? 'No options for this crop'
+                          : t('calc.select_app')
                     }
                     disabled={typesLoading}
                   />
