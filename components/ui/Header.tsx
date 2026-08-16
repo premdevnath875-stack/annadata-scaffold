@@ -6,13 +6,14 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LOGO_PATH, LOGO_ALT, NAV_LINKS, LANGUAGES, LINKEDIN_URL } from '@/lib/constants';
+import { useTranslation } from '@/components/LanguageProvider';
 
 export function Header() {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
-  const [currentLang, setCurrentLang] = useState('en');
+  const { currentLang, setCurrentLang, t, isMounted } = useTranslation();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 10);
@@ -30,6 +31,13 @@ export function Header() {
     return pathname.startsWith(href);
   };
 
+  const getNavLabel = (href: string, fallback: string) => {
+    if (href === '/') return t('nav.home');
+    const key = href.replace('/', '').replace('-', '_');
+    const translated = t(`nav.${key}`);
+    return translated === `nav.${key}` ? fallback : translated;
+  };
+
   return (
     <>
       <header
@@ -42,7 +50,7 @@ export function Header() {
         {/* Top bar */}
         <div className="border-b border-border-subtle">
           <div className="max-w-container mx-auto px-4 md:px-8 lg:px-16 flex items-center justify-between h-10 text-xs font-body text-body-text">
-            <span className="hidden md:block">Pioneer in Phosphatic Fertilizers Since 1989 · ISO 9001:2015</span>
+            <span className="hidden md:block">{t('home.pioneer')}</span>
             <div className="flex items-center gap-4 ml-auto">
               {/* Language selector */}
               <div className="relative">
@@ -52,7 +60,7 @@ export function Header() {
                   aria-label="Select language"
                 >
                   <span>🌐</span>
-                  <span>{LANGUAGES.find(l => l.code === currentLang)?.native || 'English'}</span>
+                  <span>{isMounted ? LANGUAGES.find(l => l.code === currentLang)?.native || 'English' : 'English'}</span>
                   <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
@@ -63,12 +71,12 @@ export function Header() {
                       initial={{ opacity: 0, y: -4 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -4 }}
-                      className="absolute right-0 top-full mt-1 bg-white shadow-tech-soft rounded-lg border border-border-subtle py-1 min-w-[120px] z-50"
+                      className="absolute right-0 top-full mt-1 bg-white shadow-tech-soft rounded-lg border border-border-subtle py-1 min-w-[120px] z-50 max-h-64 overflow-y-auto"
                     >
                       {LANGUAGES.map((lang) => (
                         <button
                           key={lang.code}
-                          onClick={() => { setCurrentLang(lang.code); setLangOpen(false); }}
+                          onClick={() => { setCurrentLang(lang.code as any); setLangOpen(false); }}
                           className={`w-full text-left px-3 py-1.5 hover:bg-section-bg transition-colors ${
                             currentLang === lang.code ? 'text-coral font-semibold' : ''
                           }`}
@@ -82,7 +90,7 @@ export function Header() {
               </div>
 
               <Link href="/careers" className="hidden sm:block hover:text-teal transition-colors">
-                Careers
+                {t('nav.careers')}
               </Link>
 
               <a
@@ -113,7 +121,7 @@ export function Header() {
               priority
             />
             <div className="hidden sm:block">
-              <span className="text-lg font-bold font-heading text-coral">ANNADATA</span>
+              <span className="text-2xl font-bold font-heading text-[#D4AF37]">अन्नदाता</span>
               <span className="block text-[10px] text-body-text font-body -mt-0.5">by Ostwal Group of Industries</span>
             </div>
           </Link>
@@ -130,7 +138,7 @@ export function Header() {
                     : 'text-charcoal'
                 }`}
               >
-                {link.label}
+                {getNavLabel(link.href, link.label)}
                 {isActive(link.href) && (
                   <motion.div
                     className="absolute bottom-0 left-3 right-3 h-0.5 bg-coral"
@@ -195,14 +203,14 @@ export function Header() {
                         : 'text-charcoal border-transparent hover:border-teal/30'
                     }`}
                   >
-                    {link.label}
+                    {getNavLabel(link.href, link.label)}
                   </Link>
                 ))}
                 <Link
                   href="/careers"
                   className="block py-3 text-base font-medium font-body border-l-4 pl-4 text-charcoal border-transparent hover:border-teal/30 mt-2 pt-5 border-t border-border-subtle"
                 >
-                  Careers
+                  {t('nav.careers')}
                 </Link>
               </div>
             </motion.nav>

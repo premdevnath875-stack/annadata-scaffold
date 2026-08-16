@@ -135,8 +135,27 @@ export const BUSINESS_INTERESTS = [
 export const LANGUAGES = [
   { code: 'en', label: 'English', native: 'English' },
   { code: 'hi', label: 'Hindi', native: 'हिन्दी' },
-  { code: 'mr', label: 'Marathi', native: 'मराठी' },
+  { code: 'as', label: 'Assamese', native: 'অসমীয়া' },
+  { code: 'bn', label: 'Bengali', native: 'বাংলা' },
+  { code: 'brx', label: 'Bodo', native: 'बड़ो' },
+  { code: 'doi', label: 'Dogri', native: 'डोगरी' },
   { code: 'gu', label: 'Gujarati', native: 'ગુજરાતી' },
+  { code: 'kn', label: 'Kannada', native: 'ಕನ್ನಡ' },
+  { code: 'ks', label: 'Kashmiri', native: 'कॉशुर' },
+  { code: 'kok', label: 'Konkani', native: 'कोंकणी' },
+  { code: 'mai', label: 'Maithili', native: 'मैथिली' },
+  { code: 'ml', label: 'Malayalam', native: 'മലയാളം' },
+  { code: 'mni', label: 'Manipuri', native: 'ꯃꯤꯇꯩꯂꯣꯟ' },
+  { code: 'mr', label: 'Marathi', native: 'मराठी' },
+  { code: 'ne', label: 'Nepali', native: 'नेपाली' },
+  { code: 'or', label: 'Odia', native: 'ଓଡ଼ିଆ' },
+  { code: 'pa', label: 'Punjabi', native: 'ਪੰਜਾਬੀ' },
+  { code: 'sa', label: 'Sanskrit', native: 'संस्कृतम्' },
+  { code: 'sat', label: 'Santali', native: 'ᱥᱟᱱᱛᱟᱲᱤ' },
+  { code: 'sd', label: 'Sindhi', native: 'سنڌي' },
+  { code: 'ta', label: 'Tamil', native: 'தமிழ்' },
+  { code: 'te', label: 'Telugu', native: 'తెలుగు' },
+  { code: 'ur', label: 'Urdu', native: 'اردو' },
 ] as const;
 
 // Navigation

@@ -7,13 +7,14 @@ import { SectionWrapper, SectionLabel, SectionHeading } from '@/components/ui/Se
 import { Select } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { ScrollReveal } from '@/components/animations/ScrollReveal';
-import type { Crop, CropStage, DoseRule, ApplicationType } from '@/lib/supabase/types';
+import type { Crop, CropStage, DoseRule } from '@/lib/supabase/types';
+import { useTranslation } from '@/components/LanguageProvider';
 
 export default function DoseCalculatorPage() {
+  const { t } = useTranslation();
   const [crops, setCrops] = useState<Crop[]>([]);
   const [stages, setStages] = useState<CropStage[]>([]);
-  const [rules, setRules] = useState<DoseRule[]>([]);
-
+  
   // Form state
   const [selectedCrop, setSelectedCrop] = useState('');
   const [applicationType, setApplicationType] = useState('');
@@ -24,6 +25,7 @@ export default function DoseCalculatorPage() {
   const [calculated, setCalculated] = useState(false);
   const [availableTypes, setAvailableTypes] = useState<string[]>([]);
   const [availableStages, setAvailableStages] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
 
   // Progress
   const currentStep = selectedCrop ? (applicationType ? (cropStage ? (landArea ? 4 : 3) : 2) : 1) : 0;
@@ -41,16 +43,12 @@ export default function DoseCalculatorPage() {
 
     const supabase = createClient();
 
-    // Fetch crop stages
-    supabase.from('crop_stages').select('*').eq('crop_id', selectedCrop).order('display_order')
-      .then(({ data }) => { if (data) setStages(data as CropStage[]); });
-
     // Fetch available application types for this crop
     supabase.from('dose_rules').select('application_type').eq('crop_id', selectedCrop).eq('status', 'active')
       .then(({ data }) => {
         if (data) {
           const types = [...new Set(data.map((d) => d.application_type))];
-          setAvailableTypes(types);
+          setAvailableTypes(types.filter(Boolean));
         }
       });
 
@@ -72,7 +70,7 @@ export default function DoseCalculatorPage() {
       .then(({ data }) => {
         if (data) {
           const stageNames = [...new Set(data.map((d) => d.crop_stage))];
-          setAvailableStages(stageNames);
+          setAvailableStages(stageNames.filter(Boolean));
         }
       });
 
@@ -82,28 +80,42 @@ export default function DoseCalculatorPage() {
   }, [selectedCrop, applicationType]);
 
   const calculate = async () => {
-    const supabase = createClient();
     const area = parseFloat(landArea);
-    if (!area || area <= 0) return;
-
-    const { data } = await supabase
-      .from('dose_rules')
-      .select('*, product:products(*)')
-      .eq('crop_id', selectedCrop)
-      .eq('application_type', applicationType)
-      .eq('crop_stage', cropStage)
-      .eq('status', 'active');
-
-    if (data) {
-      // Adjust for hectare (1 hectare = 2.47 acres)
-      const multiplier = areaUnit === 'hectare' ? area * 2.47 : area;
-      const adjusted = data.map((rule) => ({
-        ...rule,
-        recommended_quantity: rule.recommended_quantity * multiplier,
-      }));
-      setResults(adjusted as DoseRule[]);
+    if (!area || area <= 0) {
+      alert(t('calc.enter_area'));
+      return;
     }
-    setCalculated(true);
+    
+    setLoading(true);
+    const supabase = createClient();
+    
+    try {
+      const { data, error } = await supabase
+        .from('dose_rules')
+        .select('*, product:products(*)')
+        .eq('crop_id', selectedCrop)
+        .eq('application_type', applicationType)
+        .eq('crop_stage', cropStage)
+        .eq('status', 'active');
+
+      if (error) throw error;
+
+      if (data) {
+        // Adjust for hectare (1 hectare = 2.47 acres)
+        const multiplier = areaUnit === 'hectare' ? area * 2.47 : area;
+        const adjusted = data.map((rule) => ({
+          ...rule,
+          recommended_quantity: rule.recommended_quantity * multiplier,
+        }));
+        setResults(adjusted as DoseRule[]);
+      }
+    } catch (e) {
+      console.error(e);
+      alert(t('calc.no_rec'));
+    } finally {
+      setCalculated(true);
+      setLoading(false);
+    }
   };
 
   const reset = () => {
@@ -121,13 +133,12 @@ export default function DoseCalculatorPage() {
   return (
     <SectionWrapper bg="white">
       <ScrollReveal>
-        <SectionLabel>Smart Farming</SectionLabel>
+        <SectionLabel>{t('calc.smart_farming')}</SectionLabel>
         <SectionHeading className="mt-2 mb-2" as="h1" size="lg">
-          Fertilizer Dose Calculator
+          {t('calc.title')}
         </SectionHeading>
         <p className="text-body-text font-body mb-8 max-w-2xl">
-          Get precise Annadata fertilizer recommendations based on your crop,
-          growth stage, and land area.
+          {t('calc.subtitle')}
         </p>
       </ScrollReveal>
 
@@ -147,12 +158,12 @@ export default function DoseCalculatorPage() {
             {/* Step 1: Crop */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
               <Select
-                label="Step 1: Select Crop"
+                label={t('calc.step1')}
                 required
                 options={crops.map((c) => ({ value: c.id, label: c.name }))}
                 value={selectedCrop}
                 onChange={(e) => setSelectedCrop(e.target.value)}
-                placeholder="Choose your crop"
+                placeholder={t('calc.choose_crop')}
               />
             </motion.div>
 
@@ -161,12 +172,12 @@ export default function DoseCalculatorPage() {
               {selectedCrop && (
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
                   <Select
-                    label="Step 2: Calculate Dosage For"
+                    label={t('calc.step2')}
                     required
                     options={availableTypes.map((t) => ({ value: t, label: t }))}
                     value={applicationType}
                     onChange={(e) => setApplicationType(e.target.value)}
-                    placeholder="Select application type"
+                    placeholder={t('calc.select_app')}
                   />
                 </motion.div>
               )}
@@ -177,12 +188,12 @@ export default function DoseCalculatorPage() {
               {applicationType && (
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
                   <Select
-                    label="Step 3: Crop Stage"
+                    label={t('calc.step3')}
                     required
                     options={availableStages.map((s) => ({ value: s, label: s }))}
                     value={cropStage}
                     onChange={(e) => setCropStage(e.target.value)}
-                    placeholder="Select growth stage"
+                    placeholder={t('calc.select_stage')}
                   />
                 </motion.div>
               )}
@@ -193,7 +204,7 @@ export default function DoseCalculatorPage() {
               {cropStage && (
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
                   <label className="text-sm font-semibold text-charcoal font-body block mb-1.5">
-                    Step 4: Land Area<span className="text-coral ml-0.5">*</span>
+                    {t('calc.step4')}<span className="text-coral ml-0.5">*</span>
                   </label>
                   <div className="flex gap-3">
                     <input
@@ -202,7 +213,7 @@ export default function DoseCalculatorPage() {
                       step="0.1"
                       value={landArea}
                       onChange={(e) => setLandArea(e.target.value)}
-                      placeholder="Enter area"
+                      placeholder={t('calc.enter_area')}
                       className="flex-1 h-10 px-4 bg-white border border-border-subtle rounded text-body-text font-body text-sm focus:outline-none focus:border-teal"
                     />
                     <select
@@ -210,8 +221,8 @@ export default function DoseCalculatorPage() {
                       onChange={(e) => setAreaUnit(e.target.value as 'acre' | 'hectare')}
                       className="h-10 px-4 bg-white border border-border-subtle rounded text-body-text font-body text-sm focus:outline-none focus:border-teal"
                     >
-                      <option value="acre">Acre</option>
-                      <option value="hectare">Hectare</option>
+                      <option value="acre">{t('calc.acre')}</option>
+                      <option value="hectare">{t('calc.hectare')}</option>
                     </select>
                   </div>
                 </motion.div>
@@ -226,8 +237,12 @@ export default function DoseCalculatorPage() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                 >
-                  <Button onClick={calculate} size="lg">CALCULATE DOSAGE</Button>
-                  <Button variant="outline" onClick={reset} size="lg">RESET</Button>
+                  <Button onClick={calculate} size="lg" disabled={loading}>
+                    {loading ? '...' : t('calc.btn_calc')}
+                  </Button>
+                  <Button variant="outline" onClick={reset} size="lg" disabled={loading}>
+                    {t('calc.btn_reset')}
+                  </Button>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -238,65 +253,73 @@ export default function DoseCalculatorPage() {
         <div className="lg:col-span-2">
           <div className="bg-section-bg rounded-lg p-6 sticky top-28">
             <h3 className="text-lg font-semibold font-heading text-teal mb-4">
-              Recommendations
+              {t('calc.rec_title')}
             </h3>
 
             {!calculated ? (
               <p className="text-sm text-body-text/60 font-body">
-                Complete all steps and click &ldquo;Calculate Dosage&rdquo; to see recommendations.
+                {t('calc.complete_steps')}
               </p>
             ) : results.length === 0 ? (
               <div className="text-center py-8">
                 <p className="text-body-text font-body mb-4">
-                  No recommendation available for this combination.
+                  {t('calc.no_rec')}
                 </p>
                 <p className="text-sm text-body-text/60 font-body">
-                  Contact our agro-support team for assistance.
+                  {t('calc.contact_support')}
                 </p>
               </div>
             ) : (
-              <>
-                {/* Results table */}
-                <div className="border border-border-subtle rounded-lg overflow-hidden mb-4">
-                  <table className="w-full text-sm font-body">
-                    <thead>
-                      <tr className="bg-white">
-                        <th className="px-3 py-2 text-left font-semibold text-charcoal">Fertilizer</th>
-                        <th className="px-3 py-2 text-right font-semibold text-charcoal">Quantity</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {results.map((rule, i) => (
-                        <motion.tr
-                          key={rule.id}
-                          className="border-t border-border-subtle"
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: i * 0.1 }}
-                        >
-                          <td className="px-3 py-2.5 text-body-text">
-                            <div className="font-semibold text-charcoal">{rule.fertilizer_name}</div>
-                            {rule.product && (
-                              <div className="text-xs text-teal">{rule.product.form} · {(rule.product.packaging as string[]).join(', ')}</div>
-                            )}
-                          </td>
-                          <td className="px-3 py-2.5 text-right font-semibold text-coral">
-                            {rule.recommended_quantity.toFixed(1)} {rule.quantity_unit}
-                          </td>
-                        </motion.tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-
-                {/* Summary */}
-                <div className="text-xs text-body-text/70 font-body space-y-1">
-                  <p><strong>Crop:</strong> {selectedCropName}</p>
-                  <p><strong>Application:</strong> {applicationType}</p>
-                  <p><strong>Stage:</strong> {cropStage}</p>
-                  <p><strong>Land Area:</strong> {landArea} {areaUnit}(s)</p>
-                </div>
-              </>
+              <div className="space-y-4">
+                {results.map((rule, i) => (
+                  <motion.div
+                    key={rule.id}
+                    className="bg-white border border-border-subtle rounded-lg p-5 shadow-sm"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.1 }}
+                  >
+                    <div className="grid grid-cols-2 gap-y-3 gap-x-4 text-sm font-body">
+                      <div>
+                        <span className="block text-body-text/60 text-xs">{t('calc.lbl_crop')}</span>
+                        <span className="font-semibold text-charcoal">{selectedCropName}</span>
+                      </div>
+                      <div>
+                        <span className="block text-body-text/60 text-xs">{t('calc.lbl_app')}</span>
+                        <span className="font-semibold text-charcoal">{applicationType}</span>
+                      </div>
+                      <div>
+                        <span className="block text-body-text/60 text-xs">{t('calc.lbl_stage')}</span>
+                        <span className="font-semibold text-charcoal">{cropStage}</span>
+                      </div>
+                      <div>
+                        <span className="block text-body-text/60 text-xs">{t('calc.lbl_area')}</span>
+                        <span className="font-semibold text-charcoal">{landArea} {areaUnit === 'acre' ? t('calc.acre') : t('calc.hectare')}</span>
+                      </div>
+                      
+                      <div className="col-span-2 pt-3 border-t border-border-subtle mt-1">
+                        <span className="block text-body-text/60 text-xs">{t('calc.th_fert')}</span>
+                        <span className="font-bold text-lg text-teal">{rule.fertilizer_name}</span>
+                        {rule.product && (
+                           <span className="block text-xs text-charcoal mt-0.5">{rule.product.form}</span>
+                        )}
+                      </div>
+                      
+                      <div className="col-span-2">
+                        <span className="block text-body-text/60 text-xs">Total Required Quantity</span>
+                        <span className="font-bold text-xl text-coral">{rule.recommended_quantity.toFixed(1)} {rule.quantity_unit}</span>
+                      </div>
+                      
+                      {rule.notes && (
+                        <div className="col-span-2 mt-2 bg-section-bg p-3 rounded text-xs text-charcoal">
+                          <span className="font-semibold block mb-1">Notes:</span>
+                          {rule.notes}
+                        </div>
+                      )}
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
             )}
           </div>
         </div>

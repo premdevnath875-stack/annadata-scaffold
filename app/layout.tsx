@@ -25,6 +25,8 @@ export const metadata: Metadata = {
   },
 };
 
+import { LanguageProvider } from '@/components/LanguageProvider';
+
 export default function RootLayout({
   children,
 }: {
@@ -33,7 +35,9 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth">
       <body className="bg-white text-body-text font-body antialiased">
-        {children}
+        <LanguageProvider>
+          {children}
+        </LanguageProvider>
       </body>
     </html>
   );
