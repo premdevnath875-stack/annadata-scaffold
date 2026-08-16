@@ -18,6 +18,10 @@ export const ESTABLISHED_YEAR = 1989;
 export const CONTACT_EMAIL = 'info@ostwal.in';
 export const WEBSITE_URL = 'https://www.ostwal.in';
 export const LINKEDIN_URL = 'https://in.linkedin.com/company/ostwal-group-of-industries';
+export const INSTAGRAM_URL = 'https://www.instagram.com/ogi_annadata';
+export const FACEBOOK_URL = 'https://www.facebook.com/Annadataostwal';
+export const X_URL = 'https://x.com/OstwalgroupofIn';
+export const YOUTUBE_URL = 'https://www.youtube.com/@Ostwal_Group_of_Industries';
 export const GOOGLE_MAPS_DIRECTIONS = 'https://share.google/Ji1JUGv8QZ59DnaPq';
 export const GOOGLE_MAPS_EMBED = 'https://maps.google.com/maps?q=Ostwal+Group+Bhilwara+Rajasthan&output=embed';
 

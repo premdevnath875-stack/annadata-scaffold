@@ -33,10 +33,10 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 
   const t = (key: string): string => {
     let langToUse = isMounted ? currentLang : 'en'; // Default to English during SSR
-    
+
     const keys = key.split('.');
     let value: any = dictionaries[langToUse] || dictionaries['en'];
-    
+
     for (const k of keys) {
       if (value && typeof value === 'object' && k in value) {
         value = value[k];

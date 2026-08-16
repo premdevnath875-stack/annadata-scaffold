@@ -28,7 +28,8 @@ export default function DoseCalculatorPage() {
   const [loading, setLoading] = useState(false);
 
   // Progress
-  const currentStep = selectedCrop ? (applicationType ? (cropStage ? (landArea ? 4 : 3) : 2) : 1) : 0;
+  const hasStages = availableStages.length > 0;
+  const currentStep = selectedCrop ? (applicationType ? (hasStages ? (cropStage ? (landArea ? 4 : 3) : 2) : (landArea ? 4 : 3)) : 1) : 0;
   const progressPercent = (currentStep / 4) * 100;
 
   useEffect(() => {
@@ -90,13 +91,18 @@ export default function DoseCalculatorPage() {
     const supabase = createClient();
     
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from('dose_rules')
         .select('*, product:products(*)')
         .eq('crop_id', selectedCrop)
         .eq('application_type', applicationType)
-        .eq('crop_stage', cropStage)
         .eq('status', 'active');
+        
+      if (hasStages) {
+        query = query.eq('crop_stage', cropStage);
+      }
+
+      const { data, error } = await query;
 
       if (error) throw error;
 
@@ -185,7 +191,7 @@ export default function DoseCalculatorPage() {
 
             {/* Step 3: Crop Stage */}
             <AnimatePresence>
-              {applicationType && (
+              {applicationType && hasStages && (
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
                   <Select
                     label={t('calc.step3')}
@@ -201,7 +207,7 @@ export default function DoseCalculatorPage() {
 
             {/* Step 4: Land Area */}
             <AnimatePresence>
-              {cropStage && (
+              {applicationType && (!hasStages || cropStage) && (
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
                   <label className="text-sm font-semibold text-charcoal font-body block mb-1.5">
                     {t('calc.step4')}<span className="text-coral ml-0.5">*</span>
@@ -288,10 +294,12 @@ export default function DoseCalculatorPage() {
                         <span className="block text-body-text/60 text-xs">{t('calc.lbl_app')}</span>
                         <span className="font-semibold text-charcoal">{applicationType}</span>
                       </div>
-                      <div>
-                        <span className="block text-body-text/60 text-xs">{t('calc.lbl_stage')}</span>
-                        <span className="font-semibold text-charcoal">{cropStage}</span>
-                      </div>
+                      {hasStages && (
+                        <div>
+                          <span className="block text-body-text/60 text-xs">{t('calc.lbl_stage')}</span>
+                          <span className="font-semibold text-charcoal">{cropStage || '-'}</span>
+                        </div>
+                      )}
                       <div>
                         <span className="block text-body-text/60 text-xs">{t('calc.lbl_area')}</span>
                         <span className="font-semibold text-charcoal">{landArea} {areaUnit === 'acre' ? t('calc.acre') : t('calc.hectare')}</span>
