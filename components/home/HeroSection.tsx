@@ -3,7 +3,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { ParticleField } from '@/components/3d/ParticleField';
 import { Button } from '@/components/ui/Button';
 import { TAGLINE, STATES_SERVED } from '@/lib/constants';
 
@@ -21,11 +20,6 @@ export function HeroSection() {
           quality={85}
         />
         <div className="absolute inset-0 bg-gradient-to-r from-white/80 via-white/60 to-white/40" />
-      </div>
-
-      {/* Particle Field */}
-      <div className="absolute inset-0 z-[1]">
-        <ParticleField />
       </div>
 
       {/* Content */}
