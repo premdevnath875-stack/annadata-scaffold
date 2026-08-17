@@ -19,7 +19,7 @@ export function HeroSection() {
           priority
           quality={85}
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-white/80 via-white/60 to-white/40" />
+        {/* Dark overlay removed for white background */}
       </div>
 
       {/* Content */}
@@ -27,7 +27,7 @@ export function HeroSection() {
         <div className="max-w-2xl">
           {/* Badge */}
           <motion.div
-            className="inline-flex items-center gap-2 bg-[#1F4E5F]/10 backdrop-blur-sm rounded-full px-4 py-1.5 mb-6"
+            className="inline-flex items-center gap-2 bg-[#1F4E5F]/5 backdrop-blur-sm rounded-full px-4 py-1.5 mb-6"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
@@ -84,7 +84,7 @@ export function HeroSection() {
               <Button size="lg">Explore Products</Button>
             </Link>
             <Link href="/dose-calculator">
-              <Button variant="outline" size="lg" className="border-[#3288A5] text-[#3288A5] hover:bg-[#3288A5]/10 hover:text-[#3288A5]">
+              <Button variant="outline" size="lg" className="border-teal text-teal hover:bg-teal hover:text-white">
                 Dose Calculator
               </Button>
             </Link>
@@ -101,16 +101,16 @@ export function HeroSection() {
             transition={{ duration: 30, repeat: Infinity, ease: 'linear' }}
           >
             {[...STATES_SERVED, ...STATES_SERVED, ...STATES_SERVED].map((state, i) => (
-              <span key={i} className="flex items-center gap-2 text-[#1F4E5F]/60 text-sm font-body">
+              <span key={i} className="flex items-center gap-2 text-[#1F4E5F]/70 text-sm font-body">
                 <span className="w-1.5 h-1.5 rounded-full bg-coral" />
                 {state}
               </span>
             ))}
-            <span className="flex items-center gap-2 text-[#1F4E5F]/60 text-sm font-body">
+            <span className="flex items-center gap-2 text-[#1F4E5F]/70 text-sm font-body">
               <span className="w-1.5 h-1.5 rounded-full bg-teal" />
               ISO 9001:2015 Certified
             </span>
-            <span className="flex items-center gap-2 text-[#1F4E5F]/60 text-sm font-body">
+            <span className="flex items-center gap-2 text-[#1F4E5F]/70 text-sm font-body">
               <span className="w-1.5 h-1.5 rounded-full bg-teal" />
               37+ Products
             </span>
